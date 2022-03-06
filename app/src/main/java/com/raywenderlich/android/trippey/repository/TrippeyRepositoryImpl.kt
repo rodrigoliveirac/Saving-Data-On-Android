@@ -43,6 +43,10 @@ class TrippeyRepositoryImpl(
     private val sharedPreferences: SharedPreferences
 ) : TrippeyRepository {
 
+    companion object {
+        const val KEY_SORT_OPTIONS = "Key_Sort"
+    }
+
     private val trips = mutableListOf<Trip>()
     private var sortOption: SortOption = None
 
@@ -72,6 +76,6 @@ class TrippeyRepositoryImpl(
     override fun getSortOption(): SortOption = sortOption
 
     override fun saveSortOption(sortOption: SortOption) {
-        this.sortOption = sortOption
+        sharedPreferences.edit().putString(KEY_SORT_OPTIONS, sortOption.name).apply()
     }
 }
