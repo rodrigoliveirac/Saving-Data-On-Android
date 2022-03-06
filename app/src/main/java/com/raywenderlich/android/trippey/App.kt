@@ -35,19 +35,29 @@
 package com.raywenderlich.android.trippey
 
 import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import com.raywenderlich.android.trippey.repository.TrippeyRepository
 import com.raywenderlich.android.trippey.repository.TrippeyRepositoryImpl
 
 class App : Application() {
 
-  companion object {
-    private lateinit var instance: App
+    companion object {
 
-    val repository: TrippeyRepository by lazy { TrippeyRepositoryImpl() }
-  }
+        private const val KEY_PREFERENCES = "Trippey_Preferences"
 
-  override fun onCreate() {
-    super.onCreate()
-    instance = this
-  }
+        private lateinit var instance: App
+
+        val repository: TrippeyRepository by lazy { TrippeyRepositoryImpl(sharedPreferences) }
+
+        private val sharedPreferences by lazy {
+            instance.getSharedPreferences(KEY_PREFERENCES, Context.MODE_PRIVATE)
+        }
+
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        instance = this
+    }
 }

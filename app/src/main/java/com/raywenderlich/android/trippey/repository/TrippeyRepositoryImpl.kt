@@ -34,41 +34,44 @@
 
 package com.raywenderlich.android.trippey.repository
 
+import android.content.SharedPreferences
 import com.raywenderlich.android.trippey.model.None
 import com.raywenderlich.android.trippey.model.SortOption
 import com.raywenderlich.android.trippey.model.Trip
 
-class TrippeyRepositoryImpl : TrippeyRepository {
+class TrippeyRepositoryImpl(
+    private val sharedPreferences: SharedPreferences
+) : TrippeyRepository {
 
-  private val trips = mutableListOf<Trip>()
-  private var sortOption: SortOption = None
+    private val trips = mutableListOf<Trip>()
+    private var sortOption: SortOption = None
 
-  override fun saveTrip(trip: Trip) {
-    trips.add(trip)
-  }
-
-  override fun updateTrip(trip: Trip) {
-    val currentTrip = trips.firstOrNull { it.id == trip.id }
-
-    if (currentTrip != null) {
-      val tripIndex = trips.indexOf(currentTrip)
-      trips.remove(currentTrip)
-
-      trips.add(tripIndex, trip)
+    override fun saveTrip(trip: Trip) {
+        trips.add(trip)
     }
-  }
 
-  override fun deleteTrip(tripId: String) {
-    val tripIndex = trips.indexOfFirst { it.id == tripId }
+    override fun updateTrip(trip: Trip) {
+        val currentTrip = trips.firstOrNull { it.id == trip.id }
 
-    trips.removeAt(tripIndex)
-  }
+        if (currentTrip != null) {
+            val tripIndex = trips.indexOf(currentTrip)
+            trips.remove(currentTrip)
 
-  override fun getTrips(): List<Trip> = trips
+            trips.add(tripIndex, trip)
+        }
+    }
 
-  override fun getSortOption(): SortOption = sortOption
+    override fun deleteTrip(tripId: String) {
+        val tripIndex = trips.indexOfFirst { it.id == tripId }
 
-  override fun saveSortOption(sortOption: SortOption) {
-    this.sortOption = sortOption
-  }
+        trips.removeAt(tripIndex)
+    }
+
+    override fun getTrips(): List<Trip> = trips
+
+    override fun getSortOption(): SortOption = sortOption
+
+    override fun saveSortOption(sortOption: SortOption) {
+        this.sortOption = sortOption
+    }
 }
