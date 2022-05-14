@@ -34,12 +34,17 @@
 
 package com.raywenderlich.android.trippey.ui.main
 
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.raywenderlich.android.trippey.App
 import com.raywenderlich.android.trippey.R
+import com.raywenderlich.android.trippey.model.SortOption
 import com.raywenderlich.android.trippey.model.Trip
+import com.raywenderlich.android.trippey.model.getSortOptionFromName
+import com.raywenderlich.android.trippey.repository.TrippeyRepositoryImpl
+import com.raywenderlich.android.trippey.repository.TrippeyRepositoryImpl.Companion.KEY_SORT_OPTIONS
 import com.raywenderlich.android.trippey.ui.addTrip.AddTripActivity
 import com.raywenderlich.android.trippey.ui.main.sorting.SortOptionDialog
 import com.raywenderlich.android.trippey.ui.tripDetails.TripDetailsActivity
@@ -48,62 +53,71 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-  private val adapter by lazy { TripAdapter(::onItemLongTapped, ::onItemTapped) }
-  private val repository by lazy { App.repository }
+    private val adapter by lazy { TripAdapter(::onItemLongTapped, ::onItemTapped) }
+    private val repository by lazy { App.repository }
+    private val localPreferences by lazy { getPreferences(Context.MODE_PRIVATE) }
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    setTheme(R.style.AppTheme)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
 
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-    initUi()
-  }
-
-  private fun initUi() {
-    tripsList.adapter = adapter
-    tripsList.layoutManager = LinearLayoutManager(this)
-
-    addTrip.setOnClickListener {
-      startActivity(AddTripActivity.getIntent(this))
+        initUi()
     }
 
-    filterOptions.setOnClickListener {
-      showFilterAndSortingDialog()
+    private fun initUi() {
+        tripsList.adapter = adapter
+        tripsList.layoutManager = LinearLayoutManager(this)
+
+        addTrip.setOnClickListener {
+            startActivity(AddTripActivity.getIntent(this))
+        }
+
+        filterOptions.setOnClickListener {
+            showFilterAndSortingDialog()
+        }
     }
-  }
 
-  private fun showFilterAndSortingDialog() {
-    val dialog = SortOptionDialog { sortOption ->
-      repository.saveSortOption(sortOption)
-      refreshData()
+    private fun showFilterAndSortingDialog() {
+        val dialog = SortOptionDialog { sortOption ->
+            saveSortOption(sortOption)
+            refreshData()
+        }
+        dialog.show(supportFragmentManager, null)
     }
-    dialog.show(supportFragmentManager, null)
-  }
 
-  private fun refreshData() {
-    adapter.setData(repository.getTrips(), repository.getSortOption())
-  }
+    private fun refreshData() {
+        adapter.setData(repository.getTrips(), getSortOption())
+    }
 
-  override fun onResume() {
-    super.onResume()
+    override fun onResume() {
+        super.onResume()
 
-    refreshData()
-  }
+        refreshData()
+    }
 
-  private fun onItemLongTapped(trip: Trip) {
-    createAndShowDialog(this,
-      getString(R.string.delete_title),
-      getString(R.string.delete_message, trip.title),
-      onPositiveAction = {
-        repository.deleteTrip(trip.id)
+    private fun getSortOption(): SortOption {
+        return getSortOptionFromName(localPreferences.getString(KEY_SORT_OPTIONS, "") ?: "")
+    }
 
-        adapter.setData(repository.getTrips(), repository.getSortOption())
-      })
-  }
+    private fun saveSortOption(sortOption: SortOption) {
+        localPreferences.edit().putString(KEY_SORT_OPTIONS, sortOption.name).apply()
+    }
+
+    private fun onItemLongTapped(trip: Trip) {
+        createAndShowDialog(this,
+            getString(R.string.delete_title),
+            getString(R.string.delete_message, trip.title),
+            onPositiveAction = {
+                repository.deleteTrip(trip.id)
+
+                refreshData()
+            })
+    }
 
 
-  private fun onItemTapped(trip: Trip) {
-    startActivity(TripDetailsActivity.getIntent(this, trip))
-  }
+    private fun onItemTapped(trip: Trip) {
+        startActivity(TripDetailsActivity.getIntent(this, trip))
+    }
 }

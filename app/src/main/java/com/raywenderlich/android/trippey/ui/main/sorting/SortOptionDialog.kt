@@ -33,6 +33,7 @@
  */
 package com.raywenderlich.android.trippey.ui.main.sorting
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,62 +42,71 @@ import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import com.raywenderlich.android.trippey.App
 import com.raywenderlich.android.trippey.R
-import com.raywenderlich.android.trippey.model.ByName
-import com.raywenderlich.android.trippey.model.ByNumberOfLocations
-import com.raywenderlich.android.trippey.model.None
-import com.raywenderlich.android.trippey.model.SortOption
+import com.raywenderlich.android.trippey.model.*
+import com.raywenderlich.android.trippey.repository.TrippeyRepositoryImpl.Companion.KEY_SORT_OPTIONS
 import kotlinx.android.synthetic.main.dialog_sorting.*
 
 class SortOptionDialog(
-  private val onSortOptionsSelected: (SortOption) -> Unit
+    private val onSortOptionsSelected: (SortOption) -> Unit
 ) : DialogFragment() {
 
-  private val repository by lazy { App.repository }
-
-  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                            savedInstanceState: Bundle?): View? {
-    return inflater.inflate(R.layout.dialog_sorting, container, false)
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    initUi()
-  }
-
-  private fun initUi() {
-    confirmButton.setOnClickListener {
-      onSortOptionSelected()
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.dialog_sorting, container, false)
     }
 
-    val currentSort = repository.getSortOption()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initUi()
+    }
 
-    sortOptions.check(when (currentSort) {
-      ByName -> R.id.sortByTitle
-      ByNumberOfLocations -> R.id.sortByNumberOfLocations
-      else -> R.id.noSort
-    })
-  }
+    private fun initUi() {
+        confirmButton.setOnClickListener {
+            onSortOptionSelected()
+        }
 
-  private fun onSortOptionSelected() {
-    val selectedOption = sortOptions.checkedRadioButtonId
+        val currentSort = getSortOption()
 
-    onSortOptionsSelected(when (selectedOption) {
-      R.id.sortByNumberOfLocations -> ByNumberOfLocations
-      R.id.sortByTitle -> ByName
-      else -> None
-    })
+        sortOptions.check(
+            when (currentSort) {
+                ByName -> R.id.sortByTitle
+                ByNumberOfLocations -> R.id.sortByNumberOfLocations
+                else -> R.id.noSort
+            }
+        )
+    }
 
-    dismissAllowingStateLoss()
-  }
+    private fun getSortOption(): SortOption {
+        val localPreferences = activity?.getPreferences(Context.MODE_PRIVATE)
+        return getSortOptionFromName(localPreferences?.getString(KEY_SORT_OPTIONS, "") ?: "")
+    }
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setStyle(STYLE_NO_TITLE, R.style.FragmentDialogTheme)
-  }
+    private fun onSortOptionSelected() {
+        val selectedOption = sortOptions.checkedRadioButtonId
 
-  override fun onStart() {
-    super.onStart()
-    dialog?.window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-      WindowManager.LayoutParams.WRAP_CONTENT)
-  }
+        onSortOptionsSelected(
+            when (selectedOption) {
+                R.id.sortByNumberOfLocations -> ByNumberOfLocations
+                R.id.sortByTitle -> ByName
+                else -> None
+            }
+        )
+
+        dismissAllowingStateLoss()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NO_TITLE, R.style.FragmentDialogTheme)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+    }
 }
