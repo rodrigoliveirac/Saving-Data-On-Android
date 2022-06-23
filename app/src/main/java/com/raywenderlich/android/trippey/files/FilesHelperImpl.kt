@@ -7,7 +7,16 @@ import java.io.FileOutputStream
 class FilesHelperImpl(private val directory: File) : FilesHelper {
 
     override fun saveData(fileName: String, data: String) {
+        val file = buildFile(fileName)
+        val fileOutputStream = buildOutputStream(file)
 
+        try {
+            fileOutputStream.use {
+                it.write(data.toByteArray())
+            }
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
     }
 
     override fun getData(): List<File> {
@@ -18,11 +27,11 @@ class FilesHelperImpl(private val directory: File) : FilesHelper {
 
     }
 
-    private fun buildFile(fileName: String) : File {
+    private fun buildFile(fileName: String): File {
         return File(directory, fileName)
     }
 
-    private fun buildOutputStream(file: File) : FileOutputStream {
+    private fun buildOutputStream(file: File): FileOutputStream {
         return FileOutputStream(file)
     }
 }
