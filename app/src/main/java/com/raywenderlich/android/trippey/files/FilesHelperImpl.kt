@@ -19,9 +19,8 @@ class FilesHelperImpl(private val directory: File) : FilesHelper {
         }
     }
 
-    override fun getData(): List<File> {
-        TODO("Not yet implemented")
-    }
+    override fun getData(): List<File> =
+        directory.listFiles()?.toList() ?: emptyList()
 
     override fun deleteData(fileName: String) {
 
