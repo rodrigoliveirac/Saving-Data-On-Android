@@ -23,7 +23,10 @@ class FilesHelperImpl(private val directory: File) : FilesHelper {
         directory.listFiles()?.toList() ?: emptyList()
 
     override fun deleteData(fileName: String) {
-
+        val targetFile = buildFile(fileName)
+        if(targetFile.exists()) {
+            targetFile.delete()
+        }
     }
 
     private fun buildFile(fileName: String): File {

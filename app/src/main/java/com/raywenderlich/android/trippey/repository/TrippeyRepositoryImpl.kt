@@ -52,27 +52,17 @@ class TrippeyRepositoryImpl(
         const val KEY_SORT_OPTIONS = "Key_Sort"
     }
 
-    private val trips = mutableListOf<Trip>()
-
     override fun saveTrip(trip: Trip) {
         filesHelper.saveData(trip.id, gson.toJson(trip))
     }
 
     override fun updateTrip(trip: Trip) {
-        val currentTrip = trips.firstOrNull { it.id == trip.id }
-
-        if (currentTrip != null) {
-            val tripIndex = trips.indexOf(currentTrip)
-            trips.remove(currentTrip)
-
-            trips.add(tripIndex, trip)
-        }
+        deleteTrip(trip.id)
+        saveTrip(trip)
     }
 
     override fun deleteTrip(tripId: String) {
-        val tripIndex = trips.indexOfFirst { it.id == tripId }
-
-        trips.removeAt(tripIndex)
+        filesHelper.deleteData(tripId)
     }
 
     override fun getTrips(): List<Trip> =
