@@ -56,8 +56,12 @@ class App : Application() {
             instance.getSharedPreferences(KEY_PREFERENCES, Context.MODE_PRIVATE)
         }
 
+        private val gson by lazy {
+            Gson()
+        }
+
         private val db: TrippeyDatabase by lazy {
-            TrippeyDatabase(instance.applicationContext)
+            TrippeyDatabase(instance, gson)
         }
 
 /*        private val filesHelper: FilesHelper by lazy {
@@ -71,10 +75,7 @@ class App : Application() {
             }
             return directory
         }
-
-        private val gson by lazy {
-            Gson()
-        }*/
+*/
 
         val repository: TrippeyRepository by lazy {
             TrippeyRepositoryImpl(
