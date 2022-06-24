@@ -37,6 +37,7 @@ package com.raywenderlich.android.trippey
 import android.app.Application
 import android.content.Context
 import com.google.gson.Gson
+import com.raywenderlich.android.trippey.database.TrippeyDatabase
 import com.raywenderlich.android.trippey.files.FilesHelper
 import com.raywenderlich.android.trippey.files.FilesHelperImpl
 import com.raywenderlich.android.trippey.repository.TrippeyRepository
@@ -55,7 +56,11 @@ class App : Application() {
             instance.getSharedPreferences(KEY_PREFERENCES, Context.MODE_PRIVATE)
         }
 
-        private val filesHelper: FilesHelper by lazy {
+        private val db: TrippeyDatabase by lazy {
+            TrippeyDatabase(instance.applicationContext)
+        }
+
+/*        private val filesHelper: FilesHelper by lazy {
             FilesHelperImpl(getFilesDirectory())
         }
 
@@ -69,13 +74,12 @@ class App : Application() {
 
         private val gson by lazy {
             Gson()
-        }
+        }*/
 
         val repository: TrippeyRepository by lazy {
             TrippeyRepositoryImpl(
                 sharedPreferences,
-                filesHelper,
-                gson
+                db
             )
         }
 
