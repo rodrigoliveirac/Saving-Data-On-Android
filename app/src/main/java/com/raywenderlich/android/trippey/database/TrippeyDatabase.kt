@@ -7,8 +7,10 @@ import android.database.sqlite.SQLiteOpenHelper
 import com.google.gson.Gson
 import com.raywenderlich.android.trippey.database.DatabaseConstants.DATABASE_NAME
 import com.raywenderlich.android.trippey.database.DatabaseConstants.DATABASE_VERSION
+import com.raywenderlich.android.trippey.database.DatabaseConstants.QUERY_BY_ID
 import com.raywenderlich.android.trippey.database.DatabaseConstants.SQL_CREATE_ENTRIES
 import com.raywenderlich.android.trippey.database.DatabaseConstants.SQL_DELETE_ENTRIES
+import com.raywenderlich.android.trippey.database.DatabaseConstants.TRIP_TABLE_NAME
 import com.raywenderlich.android.trippey.model.Trip
 
 class TrippeyDatabase(context: Context, private val gson: Gson) :
@@ -40,8 +42,13 @@ class TrippeyDatabase(context: Context, private val gson: Gson) :
 
     }
 
-    fun deleteTrips(trip: String) {
+    fun deleteTrips(tripId: String) {
+        val database = writableDatabase ?: return
 
+        val selection = QUERY_BY_ID
+        val selectionArguments =  arrayOf(tripId)
+
+        database.delete(TRIP_TABLE_NAME, selection, selectionArguments)
     }
 
     fun getTrips(): List<Trip> {
